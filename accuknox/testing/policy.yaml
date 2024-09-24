@@ -1,0 +1,14 @@
+apiVersion: security.kubearmor.com/v1
+kind: KubeArmorPolicy
+metadata:
+  name: block-pkg-mgmt-tools-exec
+  namespace: default
+spec:
+  process:
+    matchPaths:
+    - action: Block
+      path: /usr/bin/apt
+      severity: 1
+  selector:
+    matchLabels:
+      app: ubuntu
