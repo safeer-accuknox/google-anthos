@@ -23,6 +23,7 @@ patches:
       - op: add
         path: /metadata/annotations/config.kubernetes.io~1depends-on
         value: |
+            apps/namespaces/amc-helper/Deployment/amc-helper,
             apps/namespaces/kubearmor/Deployment/kubearmor-operator,
             /namespaces/agents/ConfigMap/onboarding-vars
   - path: config-patch.yaml

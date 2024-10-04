@@ -1,0 +1,35 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ template "fullname" . }}
+  labels: {{- toYaml .Values.commonLabels | nindent 4 }}
+    app: {{ template "fullname" . }}
+webhooks:  
+- name: {{ template "fullname" . }}.{{ template "namespace" . }}.svc
+  matchPolicy: Equivalent
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  objectSelector:
+    matchLabels:
+      {{ template "fullname" . }}: "true" 
+  namespaceSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values: 
+        - {{ .Values.accuknoxAgentNamespace }}
+  rules:
+  - operations: ["CREATE", "UPDATE"]
+    apiGroups: [""]
+    apiVersions: ["v1"]
+    resources: ["configmaps"]
+    scope: "Namespaced"
+  failurePolicy: Fail
+  timeoutSeconds: 25
+  clientConfig:
+    caBundle: {{ .Values.ssl.certificate }}
+    service:
+      namespace: {{ template "namespace" . }}
+      name: {{ template "fullname" . }}
+      path: /mutate
+      port: 5000
