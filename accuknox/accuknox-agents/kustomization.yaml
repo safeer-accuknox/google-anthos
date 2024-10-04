@@ -1,5 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+namespace: agents
 
 resources:
   - namespace.yaml
@@ -9,7 +10,19 @@ helmCharts:
     repo: "oci://registry-1.docker.io/accuknox"
     releaseName: agents
     namespace: agents
-    version: v0.6.7
-    valuesFile: values.yaml
+    version: v0.7.3
+    valuesFile: value_overrides.yaml
 
-namespace: agents
+commonAnnotations:
+  client.lifecycle.config.k8s.io/mutation: ignore
+
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: add
+        path: /metadata/annotations/config.kubernetes.io~1depends-on
+        value: |
+            apps/namespaces/kubearmor/Deployment/kubearmor-operator,
+            /namespaces/agents/ConfigMap/onboarding-vars
+  - path: config-patch.yaml
